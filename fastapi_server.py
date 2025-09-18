@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from etherblockdata import fetchTransaction
 from extract_bank_statement import extract_statement
+from extract_payslip import extract_payslip
 
 from dotenv import load_dotenv
 import os
@@ -113,6 +114,7 @@ def documentExtractor(
              result = extract_statement(docUrl)
         elif docType == 'PAYSLIP':
             print('payslip')
+            result = extract_payslip(docUrl)
     
        
         return {"data": result}
