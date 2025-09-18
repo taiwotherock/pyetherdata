@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from etherblockdata import fetchTransaction
+from extract_bank_statement import extract_statement
 
 from dotenv import load_dotenv
 import os
@@ -42,12 +43,16 @@ class FetchWalletDataRequest(BaseModel):
     walletAddress: str   # Wallet Public Address
     chainEndpoint: str  # optional: Chain
 
+class DocumentUploadRequest(BaseModel):
+    docUrl: str   #  Document Url
+    docType: str  # document Type
+
 
 
 # --------------------------
 # API Route to fetch wallet transaction onchain by address
 # --------------------------
-@app.post("/fetch-transaction")
+@app.post("/fetch-transaction-status")
 def fetchTransactionEntry(
     req: FetchWalletDataRequest,
      x_client_id: str = Header(..., alias="x-client-id"),
@@ -64,6 +69,8 @@ def fetchTransactionEntry(
     chain = req.chainEndpoint
     print(x_client_id) 
     print( CLIENT_ID)
+    print( 'chain: ' + chain)
+    print( 'wa: ' + wa)
     #print(x_client_secret + " " + CLIENT_SECRET)
 
     #if x_client_id != CLIENT_ID or x_client_secret != CLIENT_SECRET :
@@ -72,6 +79,41 @@ def fetchTransactionEntry(
     try:
 
         result =  fetchTransaction(wa,chain)
+       
+        return {"data": result}
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/document-extractor")
+def documentExtractor(
+    req: DocumentUploadRequest,
+     x_client_id: str = Header(..., alias="x-client-id"),
+    x_client_secret: str = Header(..., alias="x-client-secret")
+):
+    # Check authorization
+    #if not authorization or authorization != f"Bearer {API_TOKEN}":
+     #   raise HTTPException(status_code=401, detail="Unauthorized")
+    x_source_code: Optional[str] = Header(None, alias="x-source-code")
+    #x_client_id: Optional[str] = Header(None, alias="x-client-id")
+    #x_client_secret: Optional[str] = Header(None, alias="x-client-secret")
+
+    docUrl = req.docUrl
+    docType = req.docType
+    print(docUrl) 
+    print( docType)
+    
+
+    try:
+
+        result =''
+        if docType == 'BANK_STATEMENT':
+             result = extract_statement(docUrl)
+        elif docType == 'PAYSLIP':
+            print('payslip')
+    
        
         return {"data": result}
 
