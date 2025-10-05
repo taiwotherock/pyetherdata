@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from etherblockdata import fetchTransaction
 from extract_bank_statement import extract_statement
 from extract_payslip import extract_payslip
+from extract_utility_bill import extract_utility_bill
 import json
 
 from dotenv import load_dotenv
@@ -116,6 +117,9 @@ def documentExtractor(
         elif docType == 'PAY_SLIP':
             print('payslip')
             result = extract_payslip(docUrl)
+        elif docType == 'UTILITY_BILL':
+            print('Utility bill')
+            result = extract_utility_bill(docUrl)
     
        
         try:
