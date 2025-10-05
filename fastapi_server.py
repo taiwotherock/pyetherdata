@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from etherblockdata import fetchTransaction
 from extract_bank_statement import extract_statement
 from extract_payslip import extract_payslip
+import json
 
 from dotenv import load_dotenv
 import os
@@ -112,13 +113,19 @@ def documentExtractor(
         result =''
         if docType == 'BANK_STATEMENT':
              result = extract_statement(docUrl)
-        elif docType == 'PAYSLIP':
+        elif docType == 'PAY_SLIP':
             print('payslip')
             result = extract_payslip(docUrl)
     
        
-        return {"data": result}
+        try:
+            # Convert string to JSON safely
+            extracted_json = json.loads(result)
+        except Exception:
+            return {"error": "Invalid JSON returned from extractor", "raw": result}
 
+        return extracted_json
+    
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))

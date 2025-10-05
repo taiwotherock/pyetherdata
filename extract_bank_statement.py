@@ -1,5 +1,5 @@
 import os
-import json
+
 #from urllib import response
 import boto3
 from PIL import Image
